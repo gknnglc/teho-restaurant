@@ -35,13 +35,18 @@ document.addEventListener('DOMContentLoaded', function() {
     personCountInput.addEventListener('input', checkFormCompletion);
     dateTimeInput.addEventListener('input', checkFormCompletion);
 
-    showTablesButton.addEventListener('click', () => {
+    showTablesButton.addEventListener('click', () => { 
         const personCount = parseInt(personCountInput.value);
         tablesContainer.innerHTML = '';
         tableSelectionDiv.classList.remove('hidden');
 
-        let availableTables = getAvailableTables(personCount);
+        if (personCount <= 0) {
+            tablesContainer.innerHTML = "<p class='text-red-500'>Lütfen geçerli bir kişi sayısı giriniz.</p>";
+            submitButton.classList.add('hidden');
+            return; // Fonksiyonu burada sonlandır
+        }
 
+        let availableTables = getAvailableTables(personCount);
         if (availableTables.length === 0) {
             tablesContainer.innerHTML = "<p class='text-red-500'>Üzgünüz, belirttiğiniz kişi sayısına uygun boş masa bulunmamaktadır.</p>";
             submitButton.classList.add('hidden');
@@ -72,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getAvailableTables(personCount) {
         const tables = [
-            { id: 1, capacity: 2, image: "./masa1.JPG", alt: "2 Kişilik Masa(Cam Kenarı)" },
-            { id: 2, capacity: 2, image: "./masa3.JPG", alt: "2 Kişilik Masa(Duvar Kenarı)" },
-            { id: 3, capacity: 4, image: "./masa2.JPG", alt: "4 Kişilik Masa(Cam Kenarı)" },
+            { id: 1, capacity: 2, image: "./img/masa1.JPG", alt: "2 Kişilik Masa(Cam Kenarı)" },
+            { id: 2, capacity: 2, image: "./img/masa3.JPG", alt: "2 Kişilik Masa(Duvar Kenarı)" },
+            { id: 3, capacity: 4, image: "./img/masa2.JPG", alt: "4 Kişilik Masa(Cam Kenarı)" },
             { id: 4, capacity: 4, image: "https://via.placeholder.com/150/ffa500/FFF?text=duvar+kenari", alt: "4 Kişilik Masa(Duvar Kenarı)" },
             { id: 5, capacity: 6, image: "https://via.placeholder.com/150/ffa500/FFF?text=duvar+kenari", alt: "6 Kişilik Masa(Duvar Kenarı)" },
             { id: 6, capacity: 8, image: "https://via.placeholder.com/150/ffa500/FFF?text=orta", alt: "8 Kişilik Masa(Orta Taraf)" },
@@ -95,6 +100,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Burada rezervasyon verilerini gönderme işlemini yapabilirsiniz.
         // Örneğin, fetch API ile bir sunucuya gönderebilirsiniz.
+
+        const reservationData = {
+            "Ad Soyad": name,
+            "Telefon": phone,
+            "Kişi Sayısı": personCount,
+            "Tarih ve Saat": dateTime,
+            "Seçilen Masa": selectedTable,
+            "Ek Notlar": document.getElementById('notes').value // Ek notları al
+        };
+    
+        localStorage.setItem('reservation', JSON.stringify(reservationData));
+        window.location.href = "rezervasyon_detay.html";
         console.log("Rezervasyon Bilgileri:");
         console.log("Ad Soyad:", name);
         console.log("Telefon:", phone);
@@ -102,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Tarih ve Saat:", dateTime);
         console.log("Seçilen Masa:", selectedTable);
 
-        alert("Rezervasyonunuz başarıyla alınmıştır!");
         document.getElementById('reservationForm').reset();
         tablesContainer.innerHTML = '';
         tableSelectionDiv.classList.add('hidden');

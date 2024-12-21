@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="script2.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    
+
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
     <style>
@@ -32,27 +32,31 @@
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
-                <input placeholder="Kişi Sayısı (1-10)" type="number" id="personCount" name="personCount" min="1" max="10" required
+                <input placeholder="Kişi Sayısı (1-10)" type="number" id="personCount" name="personCount" min="1"
+                    max="10" required
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
                 <input type="text" id="dateTime" name="dateTime" class="flatpickr-input"
                     placeholder="Tarih ve Saat Seçin">
             </div>
-            <div class="grid justify-items-center">
-                <button id="showTablesButton" type="button" class="masa-secimi">Masa Seçimi</button>
+            <div class="mb-6">
+                <textarea placeholder="Ek Notlarınız (İsteğe Bağlı)" id="notes" name="notes"
+                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"></textarea>
             </div>
-            
+            <div class="grid justify-items-center">
+                <button id="showTablesButton" type="button" class="button hidden masa-secimi">Masa Seçimi</button>
+            </div>
 
             <div id="tableSelection" class="mb-6 hidden">
-                <label class="block text-gray-700 font-medium mb-2">Uygun Masalar:</label>
+                <label class="block text-gray-700 font-medium mb-2">Uygun Masalarımız:</label>
                 <div class="flex flex-wrap justify-center gap-6" id="tablesContainer"></div>
                 <input type="hidden" id="selectedTable" name="selectedTable">
             </div>
             <div class="grid justify-items-center">
-                <button id="submitButton" type="submit" class="button hidden masa-secimi ">Rezervasyon Yap</button>
+                <button id="submitButton" type="submit" class="button hidden masa-secimi">Rezervasyon Yap</button>
             </div>
-            
+
         </form>
     </div>
 </body>

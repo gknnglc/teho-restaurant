@@ -5,7 +5,11 @@ Tooplate 2126 Antique Cafe
 https://www.tooplate.com/view/2126-antique-cafe
 
 */
-
+.table-image.selected { /* Hem table-image sınıfına hem de selected sınıfına sahip elementleri hedefler */
+    border: 3px solid #000000; /* Mavi çerçeve */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Mavi gölge */
+    transform: scale(1.2); /* Seçilen masayı hafifçe büyütür (isteğe bağlı) */
+}
 .masa-secimi {
     display: inline-flex;
     align-items: center;

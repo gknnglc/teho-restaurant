@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezervasyon Detayları</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-lg mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Rezervasyon Detayları</h1>
+        <div id="reservationDetails"></div>
+        <button id="confirmButton"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Rezervasyonu Onayla ve
+            Ödemeye Geç</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const reservationDetails = JSON.parse(localStorage.getItem('reservation'));
+            const reservationDetailsDiv = document.getElementById('reservationDetails');
+            const confirmButton = document.getElementById('confirmButton');
+
+            if (reservationDetails) {
+                let detailsHTML = '';
+                for (const key in reservationDetails) {
+                    detailsHTML += `<p><strong>${key}:</strong> ${reservationDetails[key]}</p>`;
+                }
+                reservationDetailsDiv.innerHTML = detailsHTML;
+
+                confirmButton.addEventListener('click', () => {
+                    // Burada iyzico entegrasyonu başlatılacak
+                    // Örnek: window.location.href = "iyzico_odeme_sayfasi.html";
+                    alert("Ödeme sayfasına yönlendiriliyorsunuz (iyzico entegrasyonu buraya gelecek)");
+                    fetch('/iyzico_odeme_baslat', { // Sunucu tarafındaki endpoint
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(reservationDetails), // Rezervasyon detaylarını gönder
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.paymentUrl) {
+                                window.location.href = data.paymentUrl; // iyzico ödeme sayfasına yönlendir
+                            } else {
+                                alert("Ödeme başlatılamadı. Lütfen tekrar deneyin.");
+                                console.error("iyzico error:", data.error);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                });
+            } else {
+                reservationDetailsDiv.innerHTML = "<p>Rezervasyon bilgileri bulunamadı.</p>";
+                confirmButton.style.display = 'none'; // Bilgi yoksa butonu gizle
+            }
+        });
+    </script>
+</body>
+
+</html>
