@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Rezervasyon Listesi</title>
+    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-database-compat.js"></script>
+    <style>
+        /* CSS stilleri (önceki örnekteki gibi) */
+    </style>
+</head>
+
+<body>
+    <h2>Rezervasyon Listesi</h2>
+    <table id="reservationTable">
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Kişi Sayısı</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        // Firebase konfigürasyonu (kendi değerlerinizle değiştirin)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGRTsXI5vKcLLsvgaZNOScNyMGWUWrgOk",
+            authDomain: "teho-restaurant.firebaseapp.com",
+            databaseURL: "https://teho-restaurant-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "teho-restaurant",
+            storageBucket: "teho-restaurant.firebasestorage.app",
+            messagingSenderId: "132354053120",
+            appId: "1:132354053120:web:e06bdf04cdb45dd86cf4e5",
+            measurementId: "G-XWLNBJQM8Q"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Rezervasyon verilerini çekme ve tabloya ekleme
+        const reservationTable = document.getElementById('reservationTable');
+        const tableBody = reservationTable.getElementsByTagName('tbody')[0];
+
+        database.ref('reservations').on('value', (snapshot) => {
+            const reservations = snapshot.val();
+
+            tableBody.innerHTML = ''; // Tabloyu temizle
+
+            if (reservations) {
+                Object.keys(reservations).forEach(key => {
+                    const reservation = reservations[key];
+                    const newRow = tableBody.insertRow();
+                    const cell1 = newRow.insertCell(0);
+                    const cell2 = newRow.insertCell(1);
+                    const cell3 = newRow.insertCell(2);
+                    const cell4 = newRow.insertCell(3);
+
+                    cell1.textContent = reservation.name;
+                    cell2.textContent = reservation.date;
+                    cell3.textContent = reservation.time;
+                    cell4.textContent = reservation.people;
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

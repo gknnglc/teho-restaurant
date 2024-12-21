@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezervasyon Yap</title>
+    <link rel="stylesheet" href="./css/tooplate-antique-cafe.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="script2.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
+    <style>
+
+    </style>
+</head>
+
+<body
+    class="bg-gradient-to-br from-[#D2B48C] via-[#A0522D] to-[#5C4033] bg-radial font-sans flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Rezervasyon Yap</h1>
+        <form id="reservationForm">
+            <div class="mb-6">
+                <input placeholder="Adınız Soyadınız" type="text" id="name" name="name" required
+                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            </div>
+            <div class="mb-6">
+                <input placeholder="Telefon Numaranız (05XXX)" type="tel" id="phone" name="phone" required
+                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            </div>
+            <div class="mb-6">
+                <input placeholder="Kişi Sayısı (1-10)" type="number" id="personCount" name="personCount" min="1" max="10" required
+                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
+            </div>
+            <div class="mb-6">
+                <input type="text" id="dateTime" name="dateTime" class="flatpickr-input"
+                    placeholder="Tarih ve Saat Seçin">
+            </div>
+            <div class="grid justify-items-center">
+                <button id="showTablesButton" type="button" class="masa-secimi">Masa Seçimi</button>
+            </div>
+            
+
+            <div id="tableSelection" class="mb-6 hidden">
+                <label class="block text-gray-700 font-medium mb-2">Uygun Masalar:</label>
+                <div class="flex flex-wrap justify-center gap-6" id="tablesContainer"></div>
+                <input type="hidden" id="selectedTable" name="selectedTable">
+            </div>
+            <div class="grid justify-items-center">
+                <button id="submitButton" type="submit" class="button hidden masa-secimi ">Rezervasyon Yap</button>
+            </div>
+            
+        </form>
+    </div>
+</body>
+
+</html>

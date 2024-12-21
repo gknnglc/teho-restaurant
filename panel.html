@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Rezervasyon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .table-image.selected {
+            @apply ring-4 ring-blue-500;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-amber-100 via-yellow-100 to-orange-100 font-sans flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Rezervasyon Yap</h1>
+        <form id="reservationForm">
+            <div class="mb-6">
+                <label for="name" class="block text-gray-700 font-medium mb-2">Ad Soyad:</label>
+                <input type="text" id="name" name="name" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div class="mb-6">
+                <label for="phone" class="block text-gray-700 font-medium mb-2">Telefon Numarası:</label>
+                <input type="tel" id="phone" name="phone" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div class="mb-6">
+                <label for="personCount" class="block text-gray-700 font-medium mb-2">Kişi Sayısı (1-10):</label>
+                <input type="number" id="personCount" name="personCount" min="1" max="10" required class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div class="mb-6">
+                <label for="dateTime" class="block text-gray-700 font-medium mb-2">Tarih ve Saat:</label>
+                <input type="text" id="dateTime" name="dateTime" class="flatpickr w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Tarih ve Saat Seçin">
+            </div>
+
+            <button id="showTablesButton" type="button" class="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-900 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 hidden">Masa Seçimi</button>
+
+            <div id="tableSelection" class="mb-6 hidden">
+                <label class="block text-gray-700 font-medium mb-2">Uygun Masalar:</label>
+                <div class="flex flex-wrap justify-center gap-6" id="tablesContainer"></div>
+                <input type="hidden" id="selectedTable" name="selectedTable">
+            </div>
+
+            <button id="submitButton" type="submit" class="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-700 hover:to-green-900 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 hidden">Rezervasyon Yap</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... (Önceki kodun aynısı)
+
+            function getAvailableTables(personCount) {
+                const tables = [
+                    { id: 1, name: "Masa 1", capacity: 2, image: "https://via.placeholder.com/100", alt: "2 Kişilik Masa" },
+                    { id: 2, name: "Masa 2", capacity: 4, image: "https://via.placeholder.com/100", alt: "4 Kişilik Masa" },
+                    { id: 3, name: "Masa 3", capacity: 6, image: "https://via.placeholder.com/100", alt: "6 Kişilik Masa" },
+                    { id: 4, name: "Masa 4", capacity: 2, image: "https://via.placeholder.com/100", alt: "2 Kişilik Masa" },
+                    { id: 5, name: "Masa 5", capacity: 4, image: "https://via.placeholder.com/100", alt: "4 Kişilik Masa" },
+                    { id: 6, name: "Masa 6", capacity: 6, image: "https://via.placeholder.com/100", alt: "6 Kişilik Masa" },
+                    { id: 7, name: "Masa 7", capacity: 8, image: "https://via.placeholder.com/100", alt: "8 Kişilik Masa" },
+                    { id: 8, name: "Masa 8", capacity: 10, image: "https://via.placeholder.com/100", alt: "10 Kişilik Masa" },
+                    { id: 9, name: "Masa 9", capacity: 2, image: "https://via.placeholder.com/100", alt: "2 Kişilik Masa" },
+                    { id: 10, name: "Masa 10", capacity: 4, image: "https://via.placeholder.com/100", alt: "4 Kişilik Masa" },
+                ];
+                return tables.filter(table => table.capacity >= personCount);
+            }
+            // ... (Sonraki kodun aynısı)
+             document.getElementById('reservationForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                if (!document.getElementById('selectedTable').value) {
+                    alert("Lütfen bir masa seçin.");
+                    return;
+                }
+                // Form gönderim işlemleri burada yapılacak
+                alert("Rezervasyonunuz Alınmıştır!");
+                console.log("Ad Soyad: " + document.getElementById('name').value);
+                console.log("Telefon: " + document.getElementById('phone').value);
+                console.log("Kişi Sayısı: " + document.getElementById('personCount').value);
+                console.log("Tarih ve Saat: " + document.getElementById('dateTime').value);
+                console.log("Seçilen Masa: " + document.getElementById('selectedTable').value);
+            });
+        });
+    </script>
+</body>
+</html>

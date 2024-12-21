@@ -1,0 +1,29 @@
+body {
+    font-family: 'Poppins', sans-serif;
+}
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.table-image.selected {
+    @apply ring-4 ring-blue-500;
+}
+.hidden {
+    display: none;
+}
+
+/* Buton Stilleri */
+.button {
+    @apply w-full py-3 px-6 rounded-lg font-bold transition duration-300 focus:outline-none focus:ring-2;
+    background-image: linear-gradient(to right, #2563eb, #3b82f6); /* Mavi gradient */
+    color: white;
+}
+
+.button:hover {
+    background-image: linear-gradient(to right, #1d4ed8, #2563eb); /* Daha koyu mavi gradient */
+}
+
+.button:focus {
+    @apply ring-blue-400;
+}
