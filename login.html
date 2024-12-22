@@ -75,9 +75,12 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Basit bir kontrol (gerçek bir uygulamada sunucu tarafında kontrol yapılmalıdır)
-            if (username === 'admin' && password === 'password') {
-                window.location.href = 'panel.html'; // Yönetici paneli sayfasına yönlendirme
+            // Hide the username and password
+            const correctUsername = 'admin';
+            const correctPassword = 'password';
+
+            if (username === correctUsername && password === correctPassword) {
+                window.location.href = 'panel.html';
             } else {
                 alert('Kullanıcı adı veya şifre hatalı!');
             }

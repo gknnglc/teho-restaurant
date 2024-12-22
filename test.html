@@ -7,7 +7,7 @@
     <title>Rezervasyon Yap</title>
     <link rel="stylesheet" href="./css/tooplate-antique-cafe.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="script2.js"></script>
+    <script src="script.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
 
@@ -28,7 +28,7 @@
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
-                <input placeholder="Telefon Numaranız (05XXX)" type="tel" id="phone" name="phone" required
+                <input placeholder="Telefon Numaranız (05XX)" type="tel" id="phone" name="phone" required
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
@@ -54,10 +54,24 @@
                 <input type="hidden" id="selectedTable" name="selectedTable">
             </div>
             <div class="grid justify-items-center">
-                <button id="submitButton" type="submit" class="button hidden masa-secimi">Rezervasyon Yap</button>
+                <button id="submitButton" type="submit" class="button masa-secimi">Rezervasyon Yap</button>
             </div>
 
         </form>
+        <script>
+            document.getElementById('reservationForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const reservationData = {
+                    name: document.getElementById('name').value,
+                    phone: document.getElementById('phone').value,
+                    personCount: document.getElementById('personCount').value,
+                    dateTime: document.getElementById('dateTime').value,
+                    selectedTable: document.getElementById('selectedTable').value
+                };
+                localStorage.setItem('reservation', JSON.stringify(reservationData));
+                window.location.href = "rezervasyon_detay.html";
+            });
+        </script>
     </div>
 </body>
 
