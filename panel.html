@@ -5,28 +5,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yönetici Paneli</title>
-    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="css/tooplate-antique-cafe.css">
+    <link rel="stylesheet" href="css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        /* ...existing styles... */
+        body {
+            font-family: 'Domine', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 80%;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .confirm-delete {
+            background-color: orange;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .confirm-buttons button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .confirm-buttons .yes-button {
+            background-color: red;
+            color: white;
+        }
+        .confirm-buttons .no-button {
+            background-color: gray;
+            color: white;
+        }
     </style>
 </head>
 
-<body>
-    <h2>Rezervasyon Listesi</h2>
-    <table id="reservationTable">
-        <thead>
-            <tr>
-                <th>Ad Soyad</th>
-                <th>Telefon</th>
-                <th>Kişi Sayısı</th>
-                <th>Tarih ve Saat</th>
-                <th>Seçilen Masa</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+<body class="bg-gradient-to-br from-[#D2B48C] via-[#A0522D] to-[#5C4033] bg-radial font-sans min-h-screen flex items-center justify-center">
+    <div class="container">
+        <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Rezervasyon Listesi</h2>
+        <div class="mb-6">
+            <input type="text" id="datePicker" class="flatpickr-input w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="Lütfen Tarih Seçiniz">
+        </div>
+        <table id="reservationTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Seçilen Masa</th>
+                    <th>Ad Soyad</th>
+                    <th>Telefon</th>
+                    <th>Kişi Sayısı</th>
+                    <th>Ek Notlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- No "Yükleniyor..." text initially -->
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-database-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCGRTsXI5vKcLLsvgaZNOScNyMGWUWrgOk",
@@ -41,20 +137,95 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        const reservationTable = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr("#datePicker", {
+                dateFormat: "d-m-Y",
+                locale: "tr",
+                onChange: function(selectedDates, dateStr, instance) {
+                    loadReservations(dateStr);
+                }
+            });
 
-        database.ref('reservations').on('value', (snapshot) => {
-            const reservations = snapshot.val();
-            reservationTable.innerHTML = '';
-            if (reservations) {
-                Object.keys(reservations).forEach(key => {
-                    const reservation = reservations[key];
+            function loadReservations(dateStr) {
+                const reservationTable = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
+                reservationTable.innerHTML = ''; // Clear the table initially
+
+                database.ref('reservations').orderByChild('date').equalTo(dateStr).on('value', (snapshot) => {
+                    const reservations = snapshot.val();
+                    reservationTable.innerHTML = '';
+                    if (reservations) {
+                        const sortedReservations = Object.values(reservations).sort((a, b) => {
+                            if (!a.time || !b.time) return 0;
+                            const [hourA, minuteA] = a.time.split(':');
+                            const [hourB, minuteB] = b.time.split(':');
+                            const dateA = new Date();
+                            dateA.setHours(hourA, minuteA);
+                            const dateB = new Date();
+                            dateB.setHours(hourB, minuteB);
+                            if (dateA - dateB !== 0) {
+                                return dateA - dateB;
+                            } else {
+                                return parseInt(a.selectedTable) - parseInt(b.selectedTable);
+                            }
+                        });
+                        renderTable(sortedReservations, reservations);
+                    } else {
+                        const noDataRow = reservationTable.insertRow();
+                        const noDataCell = noDataRow.insertCell(0);
+                        noDataCell.colSpan = 8;
+                        noDataCell.className = 'no-data';
+                        noDataCell.textContent = 'Veri bulunamadı.';
+                    }
+                });
+            }
+
+            function renderTable(data, reservations) {
+                const reservationTable = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
+                reservationTable.innerHTML = '';
+                data.forEach(reservation => {
                     const newRow = reservationTable.insertRow();
-                    newRow.insertCell(0).textContent = reservation.name;
-                    newRow.insertCell(1).textContent = reservation.phone;
-                    newRow.insertCell(2).textContent = reservation.personCount;
-                    newRow.insertCell(3).textContent = reservation.dateTime;
-                    newRow.insertCell(4).textContent = reservation.selectedTable;
+                    const deleteCell = newRow.insertCell(0);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'X';
+                    deleteButton.className = 'delete-button';
+                    deleteButton.addEventListener('click', () => {
+                        deleteCell.innerHTML = `
+                            <p>${reservation.date} ${reservation.time}, Masa: ${reservation.selectedTable}</p>
+                            <p>Rezervasyon silinsin mi?</p>
+                            <div class="confirm-buttons">
+                                <button class="yes-button">Evet</button>
+                                <button class="no-button">Hayır</button>
+                            </div>
+                        `;
+                        deleteCell.querySelector('.yes-button').addEventListener('click', () => {
+                            const reservationKey = Object.keys(reservations).find(key => reservations[key] === reservation);
+                            if (reservationKey) {
+                                database.ref('reservations/' + reservationKey).remove()
+                                    .then(() => {
+                                        alert('Rezervasyon silindi.');
+                                        loadReservations(document.getElementById('datePicker').value);
+                                    })
+                                    .catch((error) => {
+                                        console.error('Rezervasyon silinirken hata oluştu:', error);
+                                    });
+                            }
+                        });
+                        deleteCell.querySelector('.no-button').addEventListener('click', () => {
+                            loadReservations(document.getElementById('datePicker').value);
+                        });
+                    });
+                    deleteCell.appendChild(deleteButton);
+                    const dateCell = newRow.insertCell(1);
+                    dateCell.textContent = reservation.date;
+                    const timeCell = newRow.insertCell(2);
+                    timeCell.textContent = reservation.time;
+                    const selectedTableCell = newRow.insertCell(3);
+                    selectedTableCell.textContent = reservation.selectedTable;
+                    newRow.insertCell(4).textContent = reservation.name;
+                    newRow.insertCell(5).textContent = reservation.phone;
+                    const personCountCell = newRow.insertCell(6);
+                    personCountCell.textContent = reservation.personCount;
+                    newRow.insertCell(7).textContent = reservation.notes;
                 });
             }
         });

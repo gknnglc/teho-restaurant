@@ -7,28 +7,64 @@
     <title>Rezervasyon Yap</title>
     <link rel="stylesheet" href="./css/tooplate-antique-cafe.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="script.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-
-
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.3/firebase-database-compat.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Domine&family=Oswald:wght@600&display=swap" rel="stylesheet">
     <style>
-
+        body {
+            font-family: 'Domine', sans-serif;
+        }
+        .reserved {
+            filter: grayscale(100%);
+            pointer-events: none;
+        }
+        .table-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 70px; /* Extra space between tables */
+        }
+        .table-image {
+            width: 100%;
+            height: 100%;
+            max-width: 400px;
+            max-height: 400px;
+            margin: 0 auto;
+            border-radius: 15px; /* Rounded corners */
+            object-fit: cover; /* Ensure the image covers the container */
+        }
+        .table-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 50px; /* Space between image and text */
+        }
+        .reserved-text {
+            color: red;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 5px; /* Space between image and text */
+        }
     </style>
 </head>
 
-<body
-    class="bg-gradient-to-br from-[#D2B48C] via-[#A0522D] to-[#5C4033] bg-radial font-sans flex justify-center items-center min-h-screen">
+<body class="bg-gradient-to-br from-[#D2B48C] via-[#A0522D] to-[#5C4033] bg-radial font-sans flex justify-center items-center min-h-screen">
     <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Rezervasyon Yap</h1>
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Rezervasyon Bilgileriniz</h1>
         <form id="reservationForm">
             <div class="mb-6">
                 <input placeholder="Adınız Soyadınız" type="text" id="name" name="name" required
+                    pattern="^[A-Za-zÇçĞğİıÖöŞşÜü]+(\s[A-Za-zÇçĞğİıÖöŞşÜü]+){1,5}$"
+                    title="Lütfen adınızı ve soyadınızı aralarında boşluk olacak şekilde giriniz."
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
                 <input placeholder="Telefon Numaranız (05XX)" type="tel" id="phone" name="phone" required
+                    pattern="^0[0-9]{10}$"
+                    title="Lütfen 0 ile başlayan 11 haneli bir telefon numarası giriniz."
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
@@ -37,39 +73,192 @@
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
             </div>
             <div class="mb-6">
-                <input type="text" id="dateTime" name="dateTime" class="flatpickr-input"
-                    placeholder="Tarih ve Saat Seçin">
-            </div>
-            <div class="mb-6">
                 <textarea placeholder="Ek Notlarınız (İsteğe Bağlı)" id="notes" name="notes"
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"></textarea>
             </div>
-            <div class="grid justify-items-center">
-                <button id="showTablesButton" type="button" class="button hidden masa-secimi">Masa Seçimi</button>
+            <div class="mb-6">
+                <input type="text" id="date" name="date" class="flatpickr-input"
+                    placeholder="Tarih Seçin" required>
+            </div>
+            <div class="mb-6">
+                <input type="text" id="time" name="time" class="flatpickr-input"
+                    placeholder="Saat Seçin" required>
             </div>
 
             <div id="tableSelection" class="mb-6 hidden">
                 <label class="block text-gray-700 font-medium mb-2">Uygun Masalarımız:</label>
-                <div class="flex flex-wrap justify-center gap-6" id="tablesContainer"></div>
+                <div class="flex flex-col justify-center gap-6" id="tablesContainer"></div>
                 <input type="hidden" id="selectedTable" name="selectedTable">
             </div>
             <div class="grid justify-items-center">
-                <button id="submitButton" type="submit" class="button masa-secimi">Rezervasyon Yap</button>
+                <button id="submitButton" type="submit" class="button masa-secimi hidden">Rezervasyon Yap</button>
             </div>
-
         </form>
         <script>
-            document.getElementById('reservationForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const reservationData = {
-                    name: document.getElementById('name').value,
-                    phone: document.getElementById('phone').value,
-                    personCount: document.getElementById('personCount').value,
-                    dateTime: document.getElementById('dateTime').value,
-                    selectedTable: document.getElementById('selectedTable').value
-                };
-                localStorage.setItem('reservation', JSON.stringify(reservationData));
-                window.location.href = "rezervasyon_detay.html";
+            const firebaseConfig = {
+                apiKey: "AIzaSyCGRTsXI5vKcLLsvgaZNOScNyMGWUWrgOk",
+                authDomain: "teho-restaurant.firebaseapp.com",
+                databaseURL: "https://teho-restaurant-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "teho-restaurant",
+                storageBucket: "teho-restaurant.firebasestorage.app",
+                messagingSenderId: "132354053120",
+                appId: "1:132354053120:web:e06bdf04cdb45dd86cf4e5",
+                measurementId: "G-XWLNBJQM8Q"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+
+            document.addEventListener('DOMContentLoaded', function () {
+                flatpickr("#date", {
+                    dateFormat: "d-m-Y",
+                    locale: "tr",
+                    minDate: "today"
+                });
+
+                flatpickr("#time", {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    minTime: "12:00",
+                    maxTime: "23:00",
+                    minuteIncrement: 30, // Ensure minutes are either 00 or 30
+                    onChange: function(selectedDates, dateStr, instance) {
+                        const timeInput = document.getElementById('time');
+                        const [hour, minute] = dateStr.split(':');
+                        if (minute !== '00' && minute !== '30') {
+                            const roundedMinute = minute < 15 ? '00' : '30';
+                            timeInput.value = `${hour}:${roundedMinute}`;
+                        }
+                        if (parseInt(hour) >= 23) {
+                            timeInput.value = '23:00';
+                        }
+                    }
+                });
+
+                const nameInput = document.getElementById('name');
+                const phoneInput = document.getElementById('phone');
+                const personCountInput = document.getElementById('personCount');
+                const dateInput = document.getElementById('date');
+                const timeInput = document.getElementById('time');
+                const tableSelectionDiv = document.getElementById('tableSelection');
+                const tablesContainer = document.getElementById('tablesContainer');
+                const submitButton = document.getElementById('submitButton');
+
+                let selectedTable;
+
+                function checkFormCompletion() {
+                    if (nameInput.value && phoneInput.value && personCountInput.value && dateInput.value && timeInput.value) {
+                        loadAvailableTables();
+                    } else {
+                        tableSelectionDiv.classList.add('hidden');
+                        submitButton.classList.add('hidden');
+                    }
+                }
+
+                nameInput.addEventListener('input', checkFormCompletion);
+                phoneInput.addEventListener('input', checkFormCompletion);
+                personCountInput.addEventListener('input', checkFormCompletion);
+                dateInput.addEventListener('input', checkFormCompletion);
+                timeInput.addEventListener('input', checkFormCompletion);
+
+                async function loadAvailableTables() {
+                    const personCount = parseInt(personCountInput.value);
+                    const date = dateInput.value;
+                    const time = timeInput.value;
+                    tablesContainer.innerHTML = '';
+                    tableSelectionDiv.classList.remove('hidden');
+
+                    if (personCount <= 0) {
+                        tablesContainer.innerHTML = "<p class='text-red-500'>Lütfen geçerli bir kişi sayısı giriniz.</p>";
+                        submitButton.classList.add('hidden');
+                        return;
+                    }
+
+                    const selectedDateTime = new Date(`${date.split('-').reverse().join('-')}T${time}`);
+                    const startTime = new Date(selectedDateTime.getTime() - 2 * 60 * 60 * 1000);
+                    const endTime = new Date(selectedDateTime.getTime() + 2 * 60 * 60 * 1000);
+
+                    const snapshot = await database.ref('reservations').once('value');
+                    const reservations = snapshot.val();
+                    let reservedTables = [];
+                    if (reservations) {
+                        Object.values(reservations).forEach(reservation => {
+                            if (reservation.date && reservation.time) {
+                                const [resDay, resMonth, resYear] = reservation.date.split('-');
+                                const [resHour, resMinute] = reservation.time.split(':');
+                                const resDateTime = new Date(`${resYear}-${resMonth}-${resDay}T${resHour}:${resMinute}`);
+                                if (resDateTime >= startTime && resDateTime <= endTime) {
+                                    reservedTables.push(reservation.selectedTable);
+                                }
+                            }
+                        });
+                    }
+
+                    let availableTables = getAvailableTables(personCount);
+                    
+                    availableTables.forEach(table => {
+                        const tableDiv = document.createElement('div');
+                        tableDiv.className = 'table-container';
+                        tableDiv.innerHTML = `
+                            <img src="${table.image}" alt="${table.alt}" class="table-image cursor-pointer rounded-lg shadow-md hover:scale-105 transition duration-300 ${reservedTables.includes(table.id.toString()) ? 'reserved' : ''}" data-table="${table.id}" data-capacity="${table.capacity}">
+                            <p class="table-text">${table.capacity} Kişilik Masa</p>
+                            ${reservedTables.includes(table.id.toString()) ? '<p class="reserved-text">Rezerve</p>' : ''}
+                        `;
+                        tablesContainer.appendChild(tableDiv);
+                    });
+
+                    const tableImages = tablesContainer.querySelectorAll('.table-image:not(.reserved)');
+                    tableImages.forEach(image => {
+                        image.addEventListener('click', () => {
+                            tableImages.forEach(img => img.classList.remove('selected'));
+                            image.classList.add('selected');
+                            selectedTable = image.dataset.table;
+                            document.getElementById('selectedTable').value = selectedTable;
+                            submitButton.classList.remove('hidden');
+                        });
+                    });
+                }
+
+                function getAvailableTables(personCount) {
+                    const tables = [
+                        { id: 1, capacity: 2, image: "./img/masa1.JPG", alt: "2 Kişilik Masa(Cam Kenarı)" },
+                        { id: 2, capacity: 2, image: "./img/masa3.JPG", alt: "2 Kişilik Masa(Duvar Kenarı)" },
+                        { id: 3, capacity: 4, image: "./img/masa2.JPG", alt: "4 Kişilik Masa(Cam Kenarı)" },
+                        { id: 4, capacity: 4, image: "./img/masa4.jpg", alt: "4 Kişilik Masa(Duvar Kenarı)" },
+                        { id: 5, capacity: 6, image: "./img/masa5.jpg", alt: "6 Kişilik Masa(Duvar Kenarı)" },
+                        { id: 6, capacity: 8, image: "./img/masa6.jpg", alt: "8 Kişilik Masa(Orta Taraf)" },
+                        { id: 7, capacity: 10, image: "./img/masa7.jpg", alt: "10 Kişilik Masa(Duvar Kenarı)" },
+                        { id: 8, capacity: 10, image: "./img/masa8.jpg", alt: "10 Kişilik Masa(Duvar Kenarı)" }
+                    ];
+
+                    return tables.filter(table => table.capacity >= personCount);
+                }
+
+                document.getElementById('reservationForm').addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const reservationData = {
+                        name: document.getElementById('name').value,
+                        phone: document.getElementById('phone').value,
+                        personCount: document.getElementById('personCount').value,
+                        date: document.getElementById('date').value,
+                        time: document.getElementById('time').value,
+                        selectedTable: document.getElementById('selectedTable').value,
+                        notes: document.getElementById('notes').value
+                    };
+
+                    localStorage.setItem('reservation', JSON.stringify(reservationData));
+                    window.location.href = "rezervasyon_detay.html";
+                });
+
+                function showCustomAlert(message, success = false) {
+                    const alertBox = document.createElement('div');
+                    alertBox.textContent = message;
+                    alertBox.className = `fixed top-4 right-4 px-4 py-3 rounded shadow-lg text-white ${success ? 'bg-green-500' : 'bg-red-500'}`;
+                    document.body.appendChild(alertBox);
+                    setTimeout(() => alertBox.remove(), 3000);
+                }
             });
         </script>
     </div>
